@@ -61,7 +61,7 @@
         
         const pic_name = data.Species.replace("*","").toLowerCase() + "_" + data["Species/Cultivar (*Texas Native)"].replaceAll(/ &\ cultivars|\*/g,"").replace("'","").replaceAll(/\u201c|\u2018|\u201d|\u2019/g,"").replaceAll(/“|”/g,"").replaceAll(" ","\ ").toLowerCase();
         const num_imgs = img_count[pic_name];
-        const img_loc = '/static/images/Plants/' + pic_name;
+        const img_loc = './static/images/Plants/' + pic_name;
         let $id = $("#id_"+data.ID);
         const $ci = $id.find('.carousel-inner');
         if(!num_imgs)
@@ -90,7 +90,7 @@
     
     let img_count = {};
     function entryInfo(data) {
-        const pic_loc = '/static/images/Plants/'+data.Species.replace("*","").replaceAll(" ", "\ ").toLowerCase() + "_" + data["Species/Cultivar (*Texas Native)"].replaceAll(/ &\ cultivars|\*/g,"").replace("'","").replaceAll(/\u201c|\u2018|\u201d|\u2019/g,"").replaceAll(/“|”/g,"").replaceAll(" ","\ ").toLowerCase();
+        const pic_loc = './static/images/Plants/'+data.Species.replace("*","").replaceAll(" ", "\ ").toLowerCase() + "_" + data["Species/Cultivar (*Texas Native)"].replaceAll(/ &\ cultivars|\*/g,"").replace("'","").replaceAll(/\u201c|\u2018|\u201d|\u2019/g,"").replaceAll(/“|”/g,"").replaceAll(" ","\ ").toLowerCase();
         // if F null go to zone
         let temp = data[String.fromCharCode(176)+'F'];
         if(!temp) temp = data.Zone;
@@ -118,7 +118,7 @@
     
     function getEntries() {
         $.ajax({
-            url: '/static/ColdTolerance.csv',
+            url: './static/ColdTolerance.csv',
             type: 'GET',
             success: parseEntries,
             error: function(data) {
@@ -151,7 +151,7 @@
     
     // now need to map image names to entries.
     function getImageEntries() {
-        const dir = '/static/images/Plants/';
+        const dir = './static/images/Plants/';
         $.ajax({
             url: dir,
             type: 'GET',
