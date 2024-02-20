@@ -227,6 +227,22 @@
 	        
 	        return config.compare(Number(objvalue),Number(intvalue),orig_string) // orig string to see if string is empty, might not matter as bigint converts to 0 & i dont think it will ever be 0
     	};
+    	
+
+        if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+            $('body').on('touchend click', '.card', (e)=>{
+                let ct = $(e.currentTarget);
+                let imgs = ct.find('img');
+                let active = imgs.parent().filter('.active').find('img');
+                const h = active[0].height;
+                imgs.each((i)=>{
+                    if(!i) return;
+                    imgs[i].style.height = h;
+                });
+                let cr = ct.find('.carousel');
+                cr.carousel('next');
+            });
+        }
         
         $('#search').on( "keyup", function() {
             // Declare variables
