@@ -1,6 +1,6 @@
     let container = `
-        <div class='container12 mx-auto my-auto'>
-            <div class="container12 mx-5">
+        <div class='container mx-auto my-auto'>
+            <div class="container">
                 <div class='rr' style='position:sticky!important;top: 0px;z-index: 100;background-color: white;padding-top: 10;'>
                     <h5 class='cc mb-0 pb-2' style='max-width:10%;flex:10%;'>Cold Hardy Info</h5>
                     <span class="ml-auto" style='max-width:90%;flex:90%;padding-right: 8px;'>
@@ -131,7 +131,13 @@
     }
     
     function prependContainer() {
-        $("body").prepend($(container));
+        // if not mobile, replace container with container12
+        let cntr = $(container);
+        if(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+            cntr.removeClass('container');
+            cntr.find('.container').removeClass('container').addClass('mx-5');
+        }
+        $("body").prepend(cntr);
     }
     
     function csvJSON(csv) {
@@ -229,7 +235,7 @@
     	};
     	
 
-        if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+        if(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
             $('body').on('touchend click', '.card', (e)=>{
                 let ct = $(e.currentTarget);
                 let imgs = ct.find('img');
