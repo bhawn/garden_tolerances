@@ -1,14 +1,13 @@
-
-    let container2 = `
+    let container = `
         <div class='container mx-auto my-auto'>
             <div class="container">
-                <div class='rr'>
-                    <h5 class='cc mb-0' style='max-width:10%;flex:10%;'>Cold Hardy Info</h5>
+                <div class='rr' style='position:sticky!important;top: 0px;z-index: 100;background-color: white;padding-top: 10;'>
+                    <h5 class='cc mb-0 pb-2' style='max-width:10%;flex:10%;'>Cold Hardy Info</h5>
                     <span class="ml-auto" style='max-width:90%;flex:90%;padding-right: 8px;'>
                         <input id='search' type="search" class="form-control rounded-0 border" style='outline:none;font-size: 13px;line-height: 18px;' placeholder=" Search ...">
                     </span>
                 </div>
-                <div class="rr pl-4 small">
+                <div class="rr pl-3 small">
                     A list of cold tolerances reported by various, (mainly Texas), gardening societys. Some duplicates.     
                 </div>
                 <div id="container" class="rr">
@@ -22,7 +21,7 @@
     `;
     
 
-    let entry4 = `
+    let entry = `
             <div class="card w-100 border-0 position-relative" style="overflow:hidden;background-color:black;margin-top: 16px;">
                 <div id="id_{{id}}" class="carousel slide" data-ride="carousel" data-interval="false" data-pause="hover">
                     <div class="carousel-inner h-100">
@@ -46,10 +45,8 @@
                 
             </div>
     `;
-    // background-color: rgba(0,0,0,0.2)!important;padding-left: 0.3rem!important;padding-right: 0.3rem!important;
-    // height == first image
-    // if img is the wrong size, then use square version & padd on whitespace/black
-    // Zoom in, so image is not stretched?
+
+
     let i = 0;
     function makeEntry(data) {                                                 
         var entryStuff = entryInfo(data);
@@ -98,7 +95,7 @@
         let temp = data[String.fromCharCode(176)+'F'];
         if(!temp) temp = data.Zone;
         else temp += " &#176F";
-        return (entry4
+        return (entry
             .replace(/{{img}}/g, pic_loc+'_1.jpg')
             .replace(/{{min_temp}}/g, temp)
             .replace(/{{title}}/g, data.Species + " " + data["Species/Cultivar (*Texas Native)"])
@@ -134,7 +131,7 @@
     }
     
     function prependContainer() {
-        $("body").prepend($(container2));
+        $("body").prepend($(container));
     }
     
     function csvJSON(csv) {
@@ -144,7 +141,6 @@
         for(var i=1;i<lines.length;i++){
             var obj = {};
             var currentline=lines[i].replace(/"([^"]*),([^"]*)"/g, '"$1/$2"').split(",");
-            // var currentline=lines[i].replace(/,(?=[^()]*\))/g, '$&_')split(",");
             for(var j=0;j<headers.length;j++){
                 obj[headers[j]] = currentline[j];
             }
@@ -181,33 +177,70 @@
         });
     }
     
-    
     $(function() {
-
-    $('#search').on( "keyup", function() {
-        // Declare variables
-        var filter,  li, a, i, txtValue;
-        filter = $('#search').val().toUpperCase();
-        li = $("#container").find(".card");
-        
-        // Loop through all list items, and hide those who don't match the search query
-        for (i = 0; i < li.length; i++) {
-            a = li[i];
-            // a = li.eq(i).find("a")[0];
-            txtValue = a.textContent || a.innerText;
-            if (txtValue.toUpperCase().indexOf(filter) > -1) {
-                li[i].style.display = "";
-            } else {
-                li[i].style.display = "none";
-            }
+        const format = function(value) {
+			return value.replace(/[^\-.0-9]/g, "");
         }
-    });
+        const _greater = function (a, b, c) {
+            return a > b;
+        }
+        const _lesser = function (a, b, c) {
+            return c !== "" && a < b;
+        }
+        const _equal = function (a, b, c) {
+            return c !== "" && a == b;
+        }
+        const numberFilter3 = function(filterValue, objvalue, orig_string) {
+	    	if(typeof filterValue !== 'string')
+	    		return true;
+	    	let config = {};
+	        var equality = filterValue.indexOf("=") != -1;
+	        var intvalue = format(filterValue);
+	        if (intvalue === "") return "";
+	        var compare;
+	
+	        if (filterValue.indexOf(">") != -1) {
+	          compare = _greater;
+	        } else if (filterValue.indexOf("<") != -1) {
+	          compare = _lesser;
+	        }
+	
+	        if (compare && equality) {
+	          config.compare = function (a, b, c) {
+	            return _equal(a, b, c) || compare(a, b, c);
+	          };
+	        } else if(!equality && !compare) {
+	        	return String(objvalue).includes(String(filterValue));
+	        } else {
+	          config.compare = compare || _equal;
+	        }
+	        
+	        return config.compare(Number(objvalue),Number(intvalue),orig_string) // orig string to see if string is empty, might not matter as bigint converts to 0 & i dont think it will ever be 0
+    	};
+        
+        $('#search').on( "keyup", function() {
+            // Declare variables
+            var filter,  li, a, i, txtValue, num;
+            filter = $('#search').val().toUpperCase();
+            li = $("#container").find(".card");
+            
+            // Loop through all list items, and hide those who don't match the search query
+            for (i = 0; i < li.length; i++) {
+                a = li[i];
+                txtValue = a.textContent || a.innerText;
+                num = txtValue.replace(/[^0-9]/g, "");
+                if (txtValue.toUpperCase().indexOf(filter) > -1 || num.length && numberFilter3(filter, num, num)) {
+                    li[i].style.display = "";
+                } else {
+                    li[i].style.display = "none";
+                }
+            }
+        });
+        
+    })
     
-})
-    
-    
-    function test() {
+    function start() {
         prependContainer();
         getImageEntries();
     }
-    test();
+    start();
