@@ -1,6 +1,6 @@
     let container = `
-        <div class='container mx-auto my-auto'>
-            <div class="container">
+        <div class='container12 mx-auto my-auto'>
+            <div class="container12 mx-5">
                 <div class='rr' style='position:sticky!important;top: 0px;z-index: 100;background-color: white;padding-top: 10;'>
                     <h5 class='cc mb-0 pb-2' style='max-width:10%;flex:10%;'>Cold Hardy Info</h5>
                     <span class="ml-auto" style='max-width:90%;flex:90%;padding-right: 8px;'>
