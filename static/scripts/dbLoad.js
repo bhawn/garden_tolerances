@@ -151,13 +151,14 @@
     
     // now need to map image names to entries.
     function getImageEntries() {
-        const dir = './static/images/Plants/';
+        const dir = 'https://api.github.com/repos/bhawn/garden_tolerances/contents/static/images/Plants';
+        // const dir = './static/images/Plants/';
         $.ajax({
             url: dir,
             type: 'GET',
             success: function(data) { 
-                // console.log(data)
-                $(data).find("a").attr("href", function (i, val) {
+                data.forEach((elem)=>{
+                    let val = elem.name;
                     val = val.replaceAll('*','').replaceAll(/ &\ cultivars|\*/g,"").replace("'","").replaceAll(/\u201c|\u2018|\u201d|\u2019/g,"").replaceAll(/“|”/g,"").replaceAll(" ","\ ").replaceAll('%20', "\ ").replaceAll('%5B','[').replaceAll('%5D',']').replaceAll('%28','(').replaceAll('%29',')').toLowerCase();
                     if(val.match(/\.(jpe?g|png|gif|webp)$/)) {
                         let index = val.lastIndexOf('_');
@@ -165,7 +166,16 @@
                         if(img_count[plant] == undefined) img_count[plant] = 1;
                         else img_count[plant] += 1;
                     }
-                });
+                })
+                // $(data).find("a").attr("href", function (i, val) {
+                //     val = val.replaceAll('*','').replaceAll(/ &\ cultivars|\*/g,"").replace("'","").replaceAll(/\u201c|\u2018|\u201d|\u2019/g,"").replaceAll(/“|”/g,"").replaceAll(" ","\ ").replaceAll('%20', "\ ").replaceAll('%5B','[').replaceAll('%5D',']').replaceAll('%28','(').replaceAll('%29',')').toLowerCase();
+                //     if(val.match(/\.(jpe?g|png|gif|webp)$/)) {
+                //         let index = val.lastIndexOf('_');
+                //         let plant = val.slice(0, index);
+                //         if(img_count[plant] == undefined) img_count[plant] = 1;
+                //         else img_count[plant] += 1;
+                //     }
+                // });
                 getEntries();
             },
             error: function(data) {
