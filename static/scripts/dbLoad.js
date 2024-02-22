@@ -42,7 +42,6 @@
                     <h5 class="">{{title}}</h5>
                     <span class="badge badge-primary">{{min_temp}}</span>
                 </div>
-                
             </div>
     `;
 
@@ -93,7 +92,7 @@
         const pic_loc = './static/images/Plants/'+data.Species.replace("*","").replaceAll(" ", "\ ").toLowerCase() + "_" + data["Species/Cultivar (*Texas Native)"].replaceAll(/ &\ cultivars|\*/g,"").replace("'","").replaceAll(/\u201c|\u2018|\u201d|\u2019/g,"").replaceAll(/“|”/g,"").replaceAll(" ","\ ").toLowerCase();
         // if F null go to zone
         let temp = data[String.fromCharCode(176)+'F'];
-        if(!temp) temp = data.Zone;
+        if(!temp) temp = "Zone " + data.Zone;
         else temp += " &#176F";
         return (entry
             .replace(/{{img}}/g, pic_loc+'_1.jpg')
@@ -104,12 +103,34 @@
             // .replace(/{{img}}/g, '/stock.jpg')
             // .replace(/{{type}}/g, data.type"]);
             // .replace(/{{sun}}/g, data.light)
-            // .replace(/{{title}}/g, data.title)
-            // .replace(/{{date}}/g, data.date));
+    }
+    
+    function sortAlphaNum(a, b) {
+        const reA = /[^a-zA-Z]/g;
+        const reN = /[^0-9]/g;
+        const aA = a.replace(reA, "");
+        const bA = b.replace(reA, "");
+        if (aA === bA) {
+            const aN = Number(a.replace(reN, ""));
+            const bN = Number(b.replace(reN, ""));
+            return aN === bN ? 0 : aN > bN ? 1 : -1;
+        } else {
+            return aA > bA ? 1 : -1;
+        }
     }
     
     function parseEntries(data) {
+        // data = data.
+        // console.log(data.replaceAll(/\".*\"\n",/g,"\n"))
         data = csvJSON(data);
+        data = data.sort(function(a,b){
+            const av = a.Species.toLowerCase(), bv = b.Species.toLowerCase();
+            const v = sortAlphaNum(av, bv);
+            if(v === 0) {
+                return sortAlphaNum(a["Species/Cultivar (*Texas Native)"].toLowerCase(), b["Species/Cultivar (*Texas Native)"].toLowerCase());
+            }
+            return v;
+        })
         data.forEach(entry=>makeEntry(entry));
         $('.carousel').carousel({
           ride:false
@@ -118,6 +139,8 @@
     
     function getEntries() {
         $.ajax({
+            // url: 'https://docs.google.com/spreadsheets/d/10jv_2i_rhFQ5Qz_dw5SYu7iRCJtYZ0FNcJM7fFfquKQ/export?format=csv&gid=0',
+            // url: 'https://docs.google.com/spreadsheets/d/10jv_2i_rhFQ5Qz_dw5SYu7iRCJtYZ0FNcJM7fFfquKQ/gviz/tq?tqx=out:csv&sheet=Sheet1',
             url: './static/ColdTolerance.csv',
             type: 'GET',
             success: parseEntries,
@@ -143,9 +166,12 @@
     function csvJSON(csv) {
         var lines = csv.split("\n");
         var result = [];
-        var headers=lines[0].split(",");
+        // lines[0] = lines[0].replaceAll("\"","");
+        var headers=lines[0].replaceAll("\"","").split(",");
         for(var i=1;i<lines.length;i++){
             var obj = {};
+            // lines[i] = lines[i].replaceAll(/"([^,]*)",/g,"$1,")
+            // lines[i] = lines[i].replaceAll(/"(.*)"$/g,"$1")
             var currentline=lines[i].replace(/"([^"]*),([^"]*)"/g, '"$1/$2"').split(",");
             for(var j=0;j<headers.length;j++){
                 obj[headers[j]] = currentline[j];
@@ -172,7 +198,7 @@
                         if(img_count[plant] == undefined) img_count[plant] = 1;
                         else img_count[plant] += 1;
                     }
-                })
+                });
                 // $(data).find("a").attr("href", function (i, val) {
                 //     val = val.replaceAll('*','').replaceAll(/ &\ cultivars|\*/g,"").replace("'","").replaceAll(/\u201c|\u2018|\u201d|\u2019/g,"").replaceAll(/“|”/g,"").replaceAll(" ","\ ").replaceAll('%20', "\ ").replaceAll('%5B','[').replaceAll('%5D',']').replaceAll('%28','(').replaceAll('%29',')').toLowerCase();
                 //     if(val.match(/\.(jpe?g|png|gif|webp)$/)) {
