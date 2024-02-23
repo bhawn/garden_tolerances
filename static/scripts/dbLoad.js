@@ -8,7 +8,7 @@
                     </span>
                 </div>
                 <div class="rr pl-3 small">
-                    A list of cold tolerances reported by various, (mainly Texas), gardening societys. Some duplicates.     
+                    A list of cold tolerances reported by various, (mainly Texas), gardening societys. Some duplicates. Does not account for a cold/dry wet.     
                 </div>
                 <div id="container" class="rr">
                     <div id="c1" class="cc"></div>
@@ -49,6 +49,7 @@
     let i = 0;
     function makeEntry(data) {                                                 
         var entryStuff = entryInfo(data);
+        if(entryStuff === -1) return;
         var entryJq = $(entryStuff);
         if(data['Common Name'].length)
             entryJq.find('.card-body').append(`
@@ -88,10 +89,42 @@
     
     
     let img_count = {};
+    let plants = {};
     function entryInfo(data) {
         const pic_loc = './static/images/Plants/'+data.Species.replace("*","").replaceAll(" ", "\ ").toLowerCase() + "_" + data["Species/Cultivar (*Texas Native)"].replaceAll(/ &\ cultivars|\*/g,"").replace("'","").replaceAll(/\u201c|\u2018|\u201d|\u2019/g,"").replaceAll(/“|”/g,"").replaceAll(" ","\ ").toLowerCase();
+        
+        let cd = data;
+        cd.temp = data[String.fromCharCode(176)+'F'];
+        if(plants[pic_loc] === undefined) {
+            plants[pic_loc] = [0, cd];
+        } else {
+            plants[pic_loc].push(cd);
+            // let j = 0;
+            for(let i = 1; i < plants[pic_loc].length-1; ++i) {
+                let p1 = cd, p2 = plants[pic_loc][i];
+                if(p1.temp != p2.temp) {
+                    if(false && p1.temp.length != 0 && p2.temp.length != 0) {
+                        cd.temp = p1.temp + ' &#176F' + ",  " + p2.temp;
+                    } else if(false && p1.temp.length == 0 && p2.temp.length == 0) {
+                        if(p1.Zone === p2.Zone) return -1;
+                        cd.Zone = p1.Zone + ', ' + p2.Zone;
+                    }
+                }
+                else {
+                    // ++j;
+                    // if(plants[pic_loc].length-1 <= j) {
+                        return -1;
+                    // }
+                    // continue;
+                }
+            }
+            plants[pic_loc][0] = cd;
+        }
+        data = cd;
+        
         // if F null go to zone
-        let temp = data[String.fromCharCode(176)+'F'];
+        let temp = data.temp;
+        // let temp = data[String.fromCharCode(176)+'F'];
         if(!temp) temp = "Zone " + data.Zone;
         else temp += " &#176F";
         return (entry
@@ -133,7 +166,7 @@
         })
         data.forEach(entry=>makeEntry(entry));
         $('.carousel').carousel({
-          ride:false
+            ride:false
         })
     }
     
@@ -164,6 +197,7 @@
     }
     
     function csvJSON(csv) {
+        csv = csv.replaceAll("\r","");
         var lines = csv.split("\n");
         var result = [];
         // lines[0] = lines[0].replaceAll("\"","");
@@ -172,7 +206,7 @@
             var obj = {};
             // lines[i] = lines[i].replaceAll(/"([^,]*)",/g,"$1,")
             // lines[i] = lines[i].replaceAll(/"(.*)"$/g,"$1")
-            var currentline=lines[i].replace(/"([^"]*),([^"]*)"/g, '"$1/$2"').split(",");
+            var currentline=lines[i].replaceAll(/"([^"]*),([^"]*)"/g, '"$1/$2"').split(",");
             for(var j=0;j<headers.length;j++){
                 obj[headers[j]] = currentline[j];
             }
