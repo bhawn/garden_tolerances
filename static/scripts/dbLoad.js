@@ -319,9 +319,16 @@
             // Loop through all list items, and hide those who don't match the search query
             for (i = 0; i < li.length; i++) {
                 a = li[i];
-                txtValue = a.textContent || a.innerText;
+                txtValue = (a.textContent || a.innerText).toUpperCase();
                 num = txtValue.replace(/[^0-9]/g, "");
-                if (txtValue.toUpperCase().indexOf(filter) > -1 || num.length && numberFilter3(filter, num, num)) {
+                let filt2 = filter.split(/\s/);
+                let fil3 = false;
+                filt2.forEach((obj)=>{
+                    if(obj.length) {
+                        fil3 = (txtValue.indexOf(obj) > -1);
+                    }
+                })
+                if (txtValue.indexOf(filter) > -1 || num.length && numberFilter3(filter, num, num) || fil3) {
                     li[i].style.display = "";
                 } else {
                     li[i].style.display = "none";
