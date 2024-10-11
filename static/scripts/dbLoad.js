@@ -206,7 +206,10 @@
             var obj = {};
             // lines[i] = lines[i].replaceAll(/"([^,]*)",/g,"$1,")
             // lines[i] = lines[i].replaceAll(/"(.*)"$/g,"$1")
-            var currentline=lines[i].replaceAll(/"([^"]*),([^"]*)"/g, '"$1/$2"').split(",");
+            // var currentline=lines[i].replaceAll(/"([^"]*),([^"]*)"/g, '"$1/$2"').split(",");
+            let currentline = lines[i].replace(/"[^"]+"/g, function (match) {
+                return match.replace(/,/g, '|');
+            }).split(",");
             for(var j=0;j<headers.length;j++){
                 obj[headers[j]] = currentline[j];
             }
